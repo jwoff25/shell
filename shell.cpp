@@ -2,13 +2,14 @@
 #include <iostream>
 #include <string.h>
 #include <dirent.h>
+#include <unistd.h>
 #include <algorithm>
 
 using namespace std;
 
 // GLOBAL VARIABLES
-const char HOME_DIR[128] = "home/jeremy";
-char CUR_DIR[128] = "/home/jeremy/CS415/ShellLab";
+const char *HOME_DIR = getenv("HOME"); //unreliable?
+char CUR_DIR[128];
 
 // METHODS
 void parse(char* [], int); //parse commands
@@ -22,6 +23,9 @@ int main(){
   char *tok;
   char *split_input[128];
   int tokenCount;
+
+  //set current directory
+  getcwd(CUR_DIR, 128);
 
   // INPUT LOOP
   while (true){
@@ -86,7 +90,9 @@ void ls(){
   //read each file from directory
   pointer = readdir(dir_path);
   while (pointer != NULL){
-    cout << pointer->d_name << " ";
+    if (*pointer->d_name != '.'){
+      cout << pointer->d_name << " ";
+    }
     pointer = readdir(dir_path);
   }
   cout << endl;
@@ -97,6 +103,9 @@ void ls(){
 void cd (char inp[]){
   if (inp == NULL or inp == " "){
     memcpy(CUR_DIR, HOME_DIR, 128);
+  }
+  else {
+    
   }
   cout << CUR_DIR << endl;
 }
