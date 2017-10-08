@@ -1,14 +1,17 @@
 #include <stdio.h>
 #include <iostream>
 #include <string.h>
+#include <dirent.h>
+#include <algorithm>
 
-#define DIR "/home/jeremy/"
+#define HOME_DIR "/home/jeremy/CS415/ShellLab"
 
 using namespace std;
 
-void parse(char* [], int);
-
-void echo(char* [], int);
+// METHODS
+void parse(char* [], int); //parse command
+void echo(char* [], int); //echo
+void ls(); //ls
 
 int main(){
   // VARIABLES
@@ -33,7 +36,7 @@ int main(){
       split_input[tokenCount++] = tok;
       tok = strtok(NULL, " ");
     }
-    split_input[tokenCount] = NULL;
+    //split_input[tokenCount] = NULL;
     //parse
     parse(split_input, tokenCount);
   }
@@ -43,10 +46,17 @@ int main(){
 //parse commands using if statements
 void parse(char* c[], int count){
   //if input is echo
-  if (strcmp(c[0], "echo\n")){
+  if (strcmp(c[0], "echo\n") == 0 or strcmp(c[0], "echo") == 0 ){
+    //printf("%d\n", strcmp(c[0], "echo"));
     echo(c, count);
   }
-  //else if (str)
+  else if (strcmp(c[0], "ls\n") == 0 or strcmp(c[0], "ls") == 0){
+    //printf("%d\n", strcmp(c[0], "ls\n"));
+    ls();
+  }
+  else {
+    cout << "Invalid Command" << endl;
+  }
 }
 
 //echo function
@@ -60,4 +70,20 @@ void echo(char * inp[], int count){
       cout << inp[counter++] << " ";
     }
   }
+}
+
+//ls function
+void ls(){
+  //create pointers for directory
+  struct dirent *pointer;
+  DIR *dir_path;
+  //open directory
+  dir_path = opendir(HOME_DIR);
+  //read each file from directory
+  pointer = readdir(dir_path);
+  while (pointer != NULL){
+    cout << pointer->d_name << endl;
+    pointer = readdir(dir_path);
+  }
+  closedir(dir_path);
 }
