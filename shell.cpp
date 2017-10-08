@@ -3,6 +3,8 @@
 #include <string.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <algorithm>
 
 using namespace std;
@@ -104,8 +106,33 @@ void cd (char inp[]){
   if (inp == NULL or inp == " "){
     memcpy(CUR_DIR, HOME_DIR, 128);
   }
-  else {
-    
+  else { //this is messy
+    //for testing DIR later
+    DIR *d;
+    //get length of current dir and input
+    size_t cur_dir_len = strlen(CUR_DIR);
+    size_t inp_len = strlen(inp);
+    //temp variable to store new directory and copy
+    char temp[128];
+    memcpy(temp, CUR_DIR, 128);
+    //start with /
+    temp[cur_dir_len++] = '/';
+    //loop through both arrays, append input to temp
+    int counter = 0;
+    while (counter < inp_len){
+      if (inp[counter] != ' ' or inp[counter != '\n']){
+        temp[cur_dir_len++] = inp[counter++];
+      }
+    }
+    //check if directory exists
+    // d = opendir(temp);
+    // if (d) {
+    //   memcpy(CUR_DIR, temp, 128);
+    // }
+    // else{
+    //   cout << "Invalid directory." << endl;
+    //   return;
+    // }
   }
   cout << CUR_DIR << endl;
 }
