@@ -36,6 +36,7 @@ int main(){
 
   // INPUT LOOP
   while (true){
+    //chdir(CUR_DIR); //change working directory?
     cout.rdbuf(coutbuf); //reset cout buffer to terminal (in case cout is changed)
     tokenCount = 0; //counter for input
     cout << "[" << CUR_DIR << "]$ ";
@@ -57,12 +58,15 @@ int main(){
       size_t inp_size = strlen(split_input[tokenCount-1]);
       split_input[tokenCount-1][inp_size-1] = '\0';
       out.open(split_input[tokenCount-1]);
-      cout.rdbuf(out.rdbuf());
+      cout.rdbuf(out.rdbuf()); //change cout to file
       split_input[tokenCount - 2] = '\0';
-      split_input[tokenCount - 1] = '\0';      
+      split_input[tokenCount - 1] = '\0';
     }
     //parse
     parse(split_input, tokenCount);
+
+    //close buffer
+    out.close();
   }
   return 0;
 }
@@ -141,7 +145,7 @@ void cd (char inp[]){
       memcpy(CUR_DIR, temp, 128);
     }
   }
-  else { //this is messy 
+  else { //this is messy
     //for testing DIR later
     DIR *d;
     //get length of current dir and input
@@ -162,7 +166,7 @@ void cd (char inp[]){
       temp[cur_dir_len-1] = '\0'; //get rid of any pesky newlines
     }
     if (inp[inp_len-1] == '\n'){
-      inp[inp_len-1] = '\0'; //get rid of newline for input      
+      inp[inp_len-1] = '\0'; //get rid of newline for input
     }
     d = opendir(temp);
     if (d) {
