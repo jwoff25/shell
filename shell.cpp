@@ -53,11 +53,13 @@ int main(){
       break;
     }
     //write to file if "> FILENAME" is included
-    if (split_input[1] != NULL){
-      size_t inp_size = strlen(split_input[2]);
-      split_input[2][inp_size-1] = '\0';
-      out.open(split_input[2]);
+    if (strcmp(split_input[tokenCount - 2], ">") == 0){
+      size_t inp_size = strlen(split_input[tokenCount-1]);
+      split_input[tokenCount-1][inp_size-1] = '\0';
+      out.open(split_input[tokenCount-1]);
       cout.rdbuf(out.rdbuf());
+      split_input[tokenCount - 2] = '\0';
+      split_input[tokenCount - 1] = '\0';      
     }
     //parse
     parse(split_input, tokenCount);
@@ -93,9 +95,11 @@ void echo(char * inp[], int count){
   while (counter < count){
     if (counter == count-1){
       cout << inp[counter++];
+      cout.flush();
     }
     else {
       cout << inp[counter++] << " ";
+      cout.flush();
     }
   }
 }
@@ -124,7 +128,20 @@ void cd (char inp[]){
   if (inp == NULL or strcmp(inp,"\n") == 0){
     memcpy(CUR_DIR, HOME_DIR, 128);
   }
-  else { //this is messy
+  //for cd .. command
+  else if (strcmp(inp, "..\n") == 0 or strcmp(inp, "..") == 0){
+    if (CUR_DIR[0] != '\0'){
+      char temp[128];
+      memcpy(temp, CUR_DIR, 128);
+      size_t dir_len = strlen(temp);
+      while (temp[dir_len] != '/'){
+        temp[dir_len--] = '\0';
+      }
+      temp[dir_len] = '\0';
+      memcpy(CUR_DIR, temp, 128);
+    }
+  }
+  else { //this is messy 
     //for testing DIR later
     DIR *d;
     //get length of current dir and input
@@ -141,8 +158,12 @@ void cd (char inp[]){
       temp[cur_dir_len++] = inp[counter++];
     }
     //check if directory exists
-    temp[cur_dir_len-1] = '\0'; //get rid of any pesky newlines
-    inp[inp_len-1] = '\0'; //get rid of newline for input
+    if (temp[cur_dir_len-1] == '\n'){
+      temp[cur_dir_len-1] = '\0'; //get rid of any pesky newlines
+    }
+    if (inp[inp_len-1] == '\n'){
+      inp[inp_len-1] = '\0'; //get rid of newline for input      
+    }
     d = opendir(temp);
     if (d) {
       memcpy(CUR_DIR, temp, 128);
@@ -175,8 +196,12 @@ void mkdir(char inp[]){
     memcpy(temp, CUR_DIR, cur_dir_len);
     temp[cur_dir_len++] = '/';
     memcpy(temp + cur_dir_len, inp, inp_len);
-    temp[strlen(temp)-1] = '\0'; //get rid of newline
-    inp[inp_len-1] = '\0'; //get rid of newline for input
+    if (temp[strlen(temp)-1] == '\n'){
+      temp[strlen(temp)-1] = '\0'; //get rid of newline
+    }
+    if (inp[inp_len-1] == '\n'){
+      inp[inp_len-1] = '\0'; //get rid of newline for input
+    }
     //make directory
     int status = mkdir(temp, 0700);
     //check for error status
@@ -204,8 +229,12 @@ void remdir(char inp[]){
     memcpy(temp, CUR_DIR, cur_dir_len);
     temp[cur_dir_len++] = '/';
     memcpy(temp + cur_dir_len, inp, inp_len);
-    temp[strlen(temp)-1] = '\0'; //remove a newline
-    inp[inp_len-1] = '\0'; //remove that other newline
+    if (temp[strlen(temp)-1] == '\n'){
+      temp[strlen(temp)-1] = '\0'; //get rid of newline
+    }
+    if (inp[inp_len-1] == '\n'){
+      inp[inp_len-1] = '\0'; //get rid of newline for input
+    }
     //remove directory
     int status = rmdir(temp);
     //check for error status
