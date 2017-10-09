@@ -188,12 +188,13 @@ void mkdir(char inp[]){
     cout << "Missing directory name." << endl;
   }
   else {
+    //printf("%s", inp);
     //get size of both arrays, append
     size_t cur_dir_len = strlen(CUR_DIR);
     size_t inp_len = strlen(inp);
     char temp[128];
     //copy both arrays into temp -- this is like way shorter
-    memcpy(temp, CUR_DIR, cur_dir_len);
+    memcpy(temp, CUR_DIR, 128);
     temp[cur_dir_len++] = '/';
     memcpy(temp + cur_dir_len, inp, inp_len);
     if (temp[strlen(temp)-1] == '\n'){
@@ -216,6 +217,7 @@ void mkdir(char inp[]){
   }
 }
 
+//rmdir function
 void remdir(char inp[]){
   if (inp == NULL or strcmp(inp,"\n") == 0){
     cout << "Missing directory name." << endl;
