@@ -19,7 +19,7 @@ void echo(char* [], int); //echo
 void ls(); //list 
 void cd(char []); //change directory 
 void mkdir(char []); //make directory 
-void rmdir(char []); //remove directory
+void remdir(char []); //remove directory
 
 int main(){
   // VARIABLES
@@ -70,7 +70,7 @@ void parse(char* c[], int count){
     mkdir(c[1]);
   }
   else if (strcmp(c[0], "rmdir\n") == 0 or strcmp(c[0], "rmdir") == 0){
-    rmdir(c[1]);
+    remdir(c[1]);
   }
   else {
     cout << "Invalid Command" << endl;
@@ -132,13 +132,20 @@ void cd (char inp[]){
     }
     //check if directory exists
     temp[cur_dir_len-1] = '\0'; //get rid of any pesky newlines
+    inp[inp_len-1] = '\0'; //get rid of newline for input
     d = opendir(temp);
     if (d) {
       memcpy(CUR_DIR, temp, 128);
     }
     else{
-      cout << "No such file or directory." << endl;
-      return;
+      //check if input is full directory
+      d = opendir(inp);
+      if (d){
+        memcpy(CUR_DIR, inp, 128);
+      }
+      else {
+        cout << "No such file or directory." << endl;
+      }
     }
   }
   //cout << CUR_DIR << endl;
@@ -154,21 +161,50 @@ void mkdir(char inp[]){
     size_t cur_dir_len = strlen(CUR_DIR);
     size_t inp_len = strlen(inp);
     char temp[128];
-    //copy both arrays into temp
+    //copy both arrays into temp -- this is like way shorter
     memcpy(temp, CUR_DIR, cur_dir_len);
     temp[cur_dir_len++] = '/';
     memcpy(temp + cur_dir_len, inp, inp_len);
-    temp[strlen(temp)-1] = '\0';
-    cout << temp << endl;
+    temp[strlen(temp)-1] = '\0'; //get rid of newline
+    inp[inp_len-1] = '\0'; //get rid of newline for input
+    //make directory
     int status = mkdir(temp, 0700);
+    //check for error status
     if (status == -1){
-      cout << "Directory exists." << endl;
+      //check if input is full directory
+      status = mkdir(inp, 0700);
+      if (status == -1){
+        cout << "Invalid directory." << endl;
+      }
+      //cout << "Directory exists." << endl;
     }
   }
 }
 
-void rmdir(char inp[]){
+void remdir(char inp[]){
   if (inp == NULL or strcmp(inp,"\n") == 0){
-    memcpy(CUR_DIR, HOME_DIR, 128);
+    cout << "Missing directory name." << endl;
+  }
+  else {
+    //get size of both arrays, append
+    size_t cur_dir_len = strlen(CUR_DIR);
+    size_t inp_len = strlen(inp);
+    char temp[128];
+    //copy both arrays into temp
+    memcpy(temp, CUR_DIR, cur_dir_len);
+    temp[cur_dir_len++] = '/';
+    memcpy(temp + cur_dir_len, inp, inp_len);
+    temp[strlen(temp)-1] = '\0'; //remove a newline
+    inp[inp_len-1] = '\0'; //remove that other newline
+    //remove directory
+    int status = rmdir(temp);
+    //check for error status
+    if (status == -1){
+      //check if inp is full directory
+      status = rmdir(inp);
+      if (status == -1){
+        cout << "Error removing directory." << endl;
+      }
+    }
   }
 }
