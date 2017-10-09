@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <bits/stdc++.h>
 #include <algorithm>
 
 using namespace std;
@@ -15,10 +16,10 @@ char CUR_DIR[128];
 
 // METHODS
 void parse(char* [], int); //parse commands
-void echo(char* [], int); //echo 
-void ls(); //list 
-void cd(char []); //change directory 
-void mkdir(char []); //make directory 
+void echo(char* [], int); //echo
+void ls(); //list
+void cd(char []); //change directory
+void mkdir(char []); //make directory
 void remdir(char []); //remove directory
 
 int main(){
@@ -27,13 +28,16 @@ int main(){
   char *tok;
   char *split_input[128];
   int tokenCount;
+  streambuf* coutbuf = cout.rdbuf();
+  ofstream out;
 
   //set current directory
   getcwd(CUR_DIR, 128);
 
   // INPUT LOOP
   while (true){
-    tokenCount = 0;
+    cout.rdbuf(coutbuf); //reset cout buffer to terminal (in case cout is changed)
+    tokenCount = 0; //counter for input
     cout << "[" << CUR_DIR << "]$ ";
     //get user input, store into "input"
     fgets(input, 128, stdin);
@@ -48,6 +52,13 @@ int main(){
     if (strcmp(split_input[0],"aexit\n") == 0 or strcmp(split_input[0],"aexit") == 0){ //with(out) whitespace
       break;
     }
+    //write to file if "> FILENAME" is included
+    if (split_input[1] != NULL){
+      size_t inp_size = strlen(split_input[2]);
+      split_input[2][inp_size-1] = '\0';
+      out.open(split_input[2]);
+      cout.rdbuf(out.rdbuf());
+    }
     //parse
     parse(split_input, tokenCount);
   }
@@ -56,7 +67,6 @@ int main(){
 
 //parse commands using if statements
 void parse(char* c[], int count){
-  //if input is echo
   if (strcmp(c[0], "echo\n") == 0 or strcmp(c[0], "echo") == 0 ){
     echo(c, count);
   }
@@ -101,7 +111,7 @@ void ls(){
   pointer = readdir(dir_path);
   while (pointer != NULL){
     if (*pointer->d_name != '.'){
-      cout << pointer->d_name << " ";
+      cout << pointer->d_name << " "; //print out directories
     }
     pointer = readdir(dir_path);
   }
@@ -174,7 +184,7 @@ void mkdir(char inp[]){
       //check if input is full directory
       status = mkdir(inp, 0700);
       if (status == -1){
-        cout << "Invalid directory." << endl;
+        cout << "Error creating directory." << endl;
       }
       //cout << "Directory exists." << endl;
     }
