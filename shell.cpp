@@ -21,6 +21,7 @@ void ls(); //list
 void cd(char []); //change directory
 void mkdir(char []); //make directory
 void remdir(char []); //remove directory
+int execute(char* []); //execute and return code
 
 int main(){
   // VARIABLES
@@ -50,7 +51,7 @@ int main(){
     }
     split_input[tokenCount] = NULL;
     //check if input is "aexit" -- if so, break loop
-    if (strcmp(split_input[0],"aexit\n") == 0 or strcmp(split_input[0],"aexit") == 0){ //with(out) whitespace
+    if (strcmp(split_input[0],"exit\n") == 0 or strcmp(split_input[0],"exit") == 0){ //with(out) whitespace
       break;
     }
     //write to file if "> FILENAME" is included
@@ -73,6 +74,7 @@ int main(){
 
 //parse commands using if statements
 void parse(char* c[], int count){
+  int status; //for command execution
   if (strcmp(c[0], "echo\n") == 0 or strcmp(c[0], "echo") == 0 ){
     echo(c, count);
   }
@@ -89,6 +91,8 @@ void parse(char* c[], int count){
     remdir(c[1]);
   }
   else {
+    status = execute(c);
+    cout << "Status Code: " << status << endl;
     cout << "Invalid Command" << endl;
   }
 }
@@ -252,4 +256,10 @@ void remdir(char inp[]){
       }
     }
   }
+}
+
+int execute(char* inp[]){
+  pid_t pid;
+  int status;
+  
 }
