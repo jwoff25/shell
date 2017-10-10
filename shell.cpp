@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <sys/wait.h>
 #include <iostream>
 #include <string.h>
 #include <dirent.h>
@@ -6,6 +7,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <bits/stdc++.h>
+#include <fcntl.h>
 #include <algorithm>
 
 using namespace std;
@@ -21,7 +23,7 @@ void ls(); //list
 void cd(char []); //change directory
 void mkdir(char []); //make directory
 void remdir(char []); //remove directory
-int execute(char* []); //execute and return code
+int execute(char**); //execute and return code
 
 int main(){
   // VARIABLES
@@ -74,7 +76,6 @@ int main(){
 
 //parse commands using if statements
 void parse(char* c[], int count){
-  int status; //for command execution
   if (strcmp(c[0], "echo\n") == 0 or strcmp(c[0], "echo") == 0 ){
     echo(c, count);
   }
@@ -91,9 +92,10 @@ void parse(char* c[], int count){
     remdir(c[1]);
   }
   else {
-    status = execute(c);
-    cout << "Status Code: " << status << endl;
-    cout << "Invalid Command" << endl;
+    if (execute(c) == -1){
+      cout << "Invalid Command" << endl;
+    }
+    //cout << "Status Code: " << status << endl;
   }
 }
 
@@ -258,8 +260,26 @@ void remdir(char inp[]){
   }
 }
 
-int execute(char* inp[]){
+//fix file output
+int execute(char** inp){
   pid_t pid;
   int status;
-  
+  int defout;
+  int fd;
+  int err_code;
+  pid = fork();
+  if (pid < 0){
+    printf("%s\n", "Fork failed.");
+  }
+  else if (pid == 0){
+    defout = dup(1);
+    if (execvp(*inp, inp) < 0){
+      perror("execvp");
+      err_code = -1;
+    }
+  }
+  else {
+    while (wait(&status) != pid) {}
+  }
+  return err_code;
 }
