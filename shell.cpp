@@ -65,7 +65,7 @@ int main(){
     //parse
     parse(split_input, tokenCount);
 
-    //close buffer
+    //close buffer ()
     out.close();
   }
   return 0;
