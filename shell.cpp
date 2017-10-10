@@ -15,6 +15,7 @@ using namespace std;
 // GLOBAL VARIABLES
 const char *HOME_DIR = getenv("HOME"); //unreliable?
 char CUR_DIR[128];
+char FILE_NAME[128];
 
 // METHODS
 void parse(char* [], int); //parse commands
@@ -62,6 +63,7 @@ int main(){
       split_input[tokenCount-1][inp_size-1] = '\0';
       out.open(split_input[tokenCount-1]);
       cout.rdbuf(out.rdbuf()); //change cout to file
+      memcpy(FILE_NAME, split_input[tokenCount - 1], 128);
       split_input[tokenCount - 2] = '\0';
       split_input[tokenCount - 1] = '\0';
     }
@@ -273,10 +275,13 @@ int execute(char** inp){
   }
   else if (pid == 0){
     defout = dup(1);
+    fd=open(FILE_NAME,O_RDWR|O_CREAT,0644);
+    dup2(fd,1);
     if (execvp(*inp, inp) < 0){
       perror("execvp");
       err_code = -1;
     }
+    close(fd);
   }
   else {
     while (wait(&status) != pid) {}
